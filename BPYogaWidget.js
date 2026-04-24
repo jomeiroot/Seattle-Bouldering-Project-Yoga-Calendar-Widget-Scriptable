@@ -1,10 +1,18 @@
 // BP Yoga — Poplar Widget
 // Scriptable.app — paste this into a new script
 
-const LOCATION_ID = 1;        // 1 = Seattle Poplar
+// ── Config ────────────────────────────────────────────────
+const LOCATION_ID   = 1;       // 1 = Poplar, 2 = Fremont, 4 = U-District
 const LOCATION_NAME = 'Poplar';
-const DAYS_AHEAD = 7;          // fetch next 7 days
-const MAX_CLASSES = 5;         // how many to show in widget
+const ACTIVITY_ID   = 5;       // 5 = Yoga, 6 = Fitness
+const DAYS_AHEAD    = 7;       // fetch next N days
+const MAX_CLASSES   = 5;       // how many classes to show in widget
+
+// ── Auth ──────────────────────────────────────────────────
+const API_KEY      = 'Your API KEY HERE';// see README for how to get this
+const AUTH_TENANT  = 'boulderingproject';
+const PORTAL_URL   = 'https://boulderingproject.portal.approach.app';
+const API_BASE     = 'https://widgets.api.prod.tilefive.com/cal';
 
 // ── Date helpers ──────────────────────────────────────────
 function toUTC(date) {
@@ -45,21 +53,22 @@ async function fetchClasses() {
   const now = new Date();
   const end = new Date(now.getTime() + DAYS_AHEAD * 24 * 60 * 60 * 1000);
 
-  const url = 'https://widgets.api.prod.tilefive.com/cal'
+  const url = API_BASE
     + '?startDT=' + encodeURIComponent(toUTC(now))
     + '&endDT=' + encodeURIComponent(toUTC(end))
     + '&locationId=' + LOCATION_ID
-    + '&activityId=5'
+    + '&activityId=' + ACTIVITY_ID
     + '&page=1'
     + '&pageSize=50';
+
   const req = new Request(url);
   req.timeoutInterval = 10;
   req.headers = {
-    'Authorization': 'boulderingproject',
-    'X-Api-Key': 'YOUR_API_KEY_HERE',
-    'Origin': 'https://boulderingproject.portal.approach.app',
-    'Referer': 'https://boulderingproject.portal.approach.app/',
-    'Accept': 'application/json, text/plain, */*',
+    'Authorization': AUTH_TENANT,
+    'X-Api-Key':     API_KEY,
+    'Origin':        PORTAL_URL,
+    'Referer':       PORTAL_URL + '/',
+    'Accept':        'application/json, text/plain, */*',
   };
 
   try {
@@ -76,6 +85,7 @@ async function fetchClasses() {
     console.log('After filter: ' + filtered.length);
     return filtered;
   } catch (e) {
+    console.log('Fetch error: ' + e);
     return null;
   }
 }
@@ -84,7 +94,7 @@ async function fetchClasses() {
 const C = {
   bg:        new Color('#0f1117'),
   card:      new Color('#1a1d27'),
-  accent:    new Color('#7eb8a4'),   // sage green
+  accent:    new Color('#7eb8a4'),
   accentDim: new Color('#3d6b5e'),
   text:      new Color('#f0ede8'),
   sub:       new Color('#8a8fa8'),
@@ -97,7 +107,7 @@ async function buildWidget(classes) {
   const widget = new ListWidget();
   widget.backgroundColor = C.bg;
   widget.setPadding(14, 16, 14, 16);
-  widget.url = 'https://boulderingproject.portal.approach.app/schedule?categoryIds=5';
+  widget.url = PORTAL_URL + '/schedule?categoryIds=' + ACTIVITY_ID;
 
   // Header
   const header = widget.addStack();
@@ -189,7 +199,7 @@ async function buildWidget(classes) {
     const total = cls.maxNumOfGuests;
     const pct = spots / total;
     const spotsColor = pct < 0.2 ? C.warn : pct < 0.5 ? C.accent : C.sub;
-    const spotsText = row.addText(`${spots}`);
+    const spotsText = row.addText('' + spots);
     spotsText.font = Font.mediumMonospacedSystemFont(10);
     spotsText.textColor = spotsColor;
 
@@ -206,7 +216,6 @@ const widget = await buildWidget(classes);
 if (config.runsInWidget) {
   Script.setWidget(widget);
 } else {
-  // Preview in app
   widget.presentMedium();
 }
 
