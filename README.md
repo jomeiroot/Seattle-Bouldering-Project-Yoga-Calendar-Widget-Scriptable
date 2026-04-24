@@ -1,5 +1,5 @@
 # Seattle-Bouldering-Project-Yoga-Calendar-Widget-Scriptable
-This is a custom widget that contains the Current upcoming Yoga events at Seattle Bouldering Project. This script can be pasted to the *Free App* Scriptable allowing you to make this into a customizable widget on your home screen or anywhere running IOS
+This is a custom widget that contains the Current upcoming Yoga events at Seattle Bouldering Project ([from this public calendar](https://boulderingproject.portal.approach.app/schedule?categoryIds=5)). This script can be pasted to the *Free App* Scriptable allowing you to make this into a customizable widget on your home screen or anywhere running IOS
 
 
 ![Widget Preview](preview.png)
