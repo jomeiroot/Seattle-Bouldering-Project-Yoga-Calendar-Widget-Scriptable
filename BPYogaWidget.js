@@ -5,22 +5,32 @@
 // Scriptable.app — paste this into a new script
 
 // ── Config ────────────────────────────────────────────────
+const LOCATIONS_LETTER_TO_ID = {
+  'P': '1', // Poplar
+  'F': '2', // Fremont
+  'U': '4', // U-District
+}
 const LOCATIONS = {
   '1': 'Poplar',
   '2': 'Fremont',
   '4': 'U-District',
 };
 
-
-const LOCATION_ID   = args.widgetParameter || '1';  // default to Poplar
+const LOCATION_KEY = args.widgetParameter.toUpperCase() || 'P'//default to poplar
+if (!LOCATIONS_LETTER_TO_ID[LOCATION_KEY]) {
+  console.log('Invalid location key: ' + LOCATION_KEY);
+  console.log('Valid keys: ' + Object.keys(LOCATIONS_LETTER_TO_ID).join(', '));
+  throw new Error('Invalid location key');
+}
+const LOCATION_ID   = LOCATIONS_LETTER_TO_ID[LOCATION_KEY];
 const LOCATION_NAME = LOCATIONS[LOCATION_ID] || 'Poplar';
 
 const ACTIVITY_ID   = 5;       // 5 = Yoga, 6 = Fitness
 const DAYS_AHEAD    = 7;       // fetch next N days
-const MAX_CLASSES   = 5;       // how many classes to show in widget
+const MAX_CLASSES   = 6;       // how many classes to show in widget
 
 // ── Auth ──────────────────────────────────────────────────
-const API_KEY      = 'Your API KEY HERE';// see README for how to get this
+const API_KEY      = 'OQ2z4Q3jSU1BW3y9dyfEW5FlEFu1ozIj7jE27qjy';// see README for how to get this
 const AUTH_TENANT  = 'boulderingproject';
 const PORTAL_URL   = 'https://boulderingproject.portal.approach.app';
 const API_BASE     = 'https://widgets.api.prod.tilefive.com/cal';
@@ -117,7 +127,7 @@ const C = {
 async function buildWidget(classes) {
   const widget = new ListWidget();
   widget.backgroundColor = C.bg;
-  widget.setPadding(14, 16, 14, 16);
+  widget.setPadding(12, 16, 8, 16);
   widget.url = PORTAL_URL + '/schedule?categoryIds=' + ACTIVITY_ID;
 
   // Header
@@ -128,14 +138,10 @@ async function buildWidget(classes) {
   const titleStack = header.addStack();
   titleStack.layoutVertically();
 
-  const title = titleStack.addText('🧘 YOGA');
+  const title = titleStack.addText('🧘 YOGA · '+ LOCATION_NAME);
   title.font = Font.boldMonospacedSystemFont(11);
   title.textColor = C.accent;
   title.textOpacity = 0.9;
-
-  const sub = titleStack.addText(LOCATION_NAME.toUpperCase());
-  sub.font = Font.mediumMonospacedSystemFont(9);
-  sub.textColor = C.sub;
 
   header.addSpacer();
 
@@ -155,8 +161,9 @@ async function buildWidget(classes) {
   // Divider
   const div = widget.addStack();
   div.backgroundColor = C.divider;
-  div.size = new Size(0, 1);
-  widget.addSpacer(8);
+    div.size = new Size(0, 1);
+  div.backgroundColor = C.divider;
+  widget.addSpacer(4);
 
   // No data
   if (!classes || classes.length === 0) {
@@ -193,7 +200,8 @@ async function buildWidget(classes) {
     const timePill = row.addStack();
     timePill.backgroundColor = C.card;
     timePill.cornerRadius = 4;
-    timePill.setPadding(2, 5, 2, 5);
+    timePill.setPadding(2, 6, 2, 6);
+    timePill.size = new Size(75, 0);
     const timeText = timePill.addText(localTime(cls.startDT));
     timeText.font = Font.mediumMonospacedSystemFont(10);
     timeText.textColor = C.accent;
@@ -210,11 +218,11 @@ async function buildWidget(classes) {
     const total = cls.maxNumOfGuests;
     const pct = spots / total;
     const spotsColor = pct < 0.2 ? C.warn : pct < 0.5 ? C.accent : C.sub;
-    const spotsText = row.addText('' + spots);
+    const spotsText = row.addText(spots + 'left');
     spotsText.font = Font.mediumMonospacedSystemFont(10);
     spotsText.textColor = spotsColor;
 
-    widget.addSpacer(4);
+    widget.addSpacer(3);
   }
 
   return widget;
