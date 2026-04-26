@@ -1,9 +1,20 @@
+// Variables used by Scriptable.
+// These must be at the very top of the file. Do not edit.
+// icon-color: gray; icon-glyph: magic;
 // BP Yoga — Poplar Widget
 // Scriptable.app — paste this into a new script
 
 // ── Config ────────────────────────────────────────────────
-const LOCATION_ID   = 1;       // 1 = Poplar, 2 = Fremont, 4 = U-District
-const LOCATION_NAME = 'Poplar';
+const LOCATIONS = {
+  '1': 'Poplar',
+  '2': 'Fremont',
+  '4': 'U-District',
+};
+
+
+const LOCATION_ID   = args.widgetParameter || '1';  // default to Poplar
+const LOCATION_NAME = LOCATIONS[LOCATION_ID] || 'Poplar';
+
 const ACTIVITY_ID   = 5;       // 5 = Yoga, 6 = Fitness
 const DAYS_AHEAD    = 7;       // fetch next N days
 const MAX_CLASSES   = 5;       // how many classes to show in widget
